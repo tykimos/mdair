@@ -165,6 +165,25 @@ int main(int argc, const char *argv[]) {
         [fileMenu addItemWithTitle:@"Close" action:@selector(performClose:) keyEquivalent:@"w"];
         [fileMenuItem setSubmenu:fileMenu];
 
+        // Edit menu — enables standard Cmd+C/V/X/A/Z keyboard routing to
+        // first responder (WKWebView selection copy). Without this, drag
+        // selection works but Cmd+C fails because no menu item binds copy:.
+        NSMenuItem *editMenuItem = [[NSMenuItem alloc] init];
+        [menuBar addItem:editMenuItem];
+        NSMenu *editMenu = [[NSMenu alloc] initWithTitle:@"Edit"];
+        [editMenu addItemWithTitle:@"Undo" action:@selector(undo:) keyEquivalent:@"z"];
+        NSMenuItem *redoItem = [editMenu addItemWithTitle:@"Redo"
+                                                   action:@selector(redo:)
+                                            keyEquivalent:@"z"];
+        [redoItem setKeyEquivalentModifierMask:(NSEventModifierFlagCommand | NSEventModifierFlagShift)];
+        [editMenu addItem:[NSMenuItem separatorItem]];
+        [editMenu addItemWithTitle:@"Cut" action:@selector(cut:) keyEquivalent:@"x"];
+        [editMenu addItemWithTitle:@"Copy" action:@selector(copy:) keyEquivalent:@"c"];
+        [editMenu addItemWithTitle:@"Paste" action:@selector(paste:) keyEquivalent:@"v"];
+        [editMenu addItem:[NSMenuItem separatorItem]];
+        [editMenu addItemWithTitle:@"Select All" action:@selector(selectAll:) keyEquivalent:@"a"];
+        [editMenuItem setSubmenu:editMenu];
+
         NSMenuItem *viewMenuItem = [[NSMenuItem alloc] init];
         [menuBar addItem:viewMenuItem];
         NSMenu *viewMenu = [[NSMenu alloc] initWithTitle:@"View"];
