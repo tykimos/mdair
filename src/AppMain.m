@@ -4,6 +4,7 @@
 // Reuse the markdown renderer from GeneratePreview.m
 extern NSString *markdownToHTML(NSString *markdown);
 extern NSString *getCSS(void);
+extern NSString *getCopyScript(void);
 
 // ---------------------------------------------------------------------------
 // App Delegate
@@ -162,8 +163,8 @@ extern NSString *getCSS(void);
         "<style>%@</style></head><body>%@"
         "<script src='https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js'></script>"
         "<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>"
-        "<script>(function(){var t=null,m=null;function s(){if(!t){t=document.createElement('div');t.id='mdair-toast';t.textContent='복사됨';document.body.appendChild(t);}t.classList.add('show');clearTimeout(m);m=setTimeout(function(){t.classList.remove('show');},1200);}document.addEventListener('copy',s);})();</script>"
-        "</body></html>", css, body];
+        "%@"
+        "</body></html>", css, body, getCopyScript()];
 
     NSString *title = [path lastPathComponent];
 
@@ -262,8 +263,8 @@ extern NSString *getCSS(void);
         "<style>%@</style></head><body>%@"
         "<script src='https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js'></script>"
         "<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>"
-        "<script>(function(){var t=null,m=null;function s(){if(!t){t=document.createElement('div');t.id='mdair-toast';t.textContent='복사됨';document.body.appendChild(t);}t.classList.add('show');clearTimeout(m);m=setTimeout(function(){t.classList.remove('show');},1200);}document.addEventListener('copy',s);})();</script>"
-        "</body></html>", css, body];
+        "%@"
+        "</body></html>", css, body, getCopyScript()];
 
     NSRect frame = NSMakeRect(0, 0, 860, 700);
     NSWindowStyleMask style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |

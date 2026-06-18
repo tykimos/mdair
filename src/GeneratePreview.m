@@ -1,6 +1,14 @@
 #import <Foundation/Foundation.h>
 #import <QuickLook/QuickLook.h>
 
+NSString *codeCopyButtonHTML(void) {
+    return @"<button class=\"mdair-copy-button\" type=\"button\" aria-label=\"Copy code\" title=\"Copy code\"><svg class=\"mdair-copy-icon\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M5 4.5A1.5 1.5 0 0 1 6.5 3h5A1.5 1.5 0 0 1 13 4.5v7a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 5 11.5v-7Z\"/><path d=\"M3 10.5V3.75A1.75 1.75 0 0 1 4.75 2H10\"/></svg></button>";
+}
+
+NSString *getCopyScript(void) {
+    return @"<script>(function(){var copyIcon='<svg class=\"mdair-copy-icon\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M5 4.5A1.5 1.5 0 0 1 6.5 3h5A1.5 1.5 0 0 1 13 4.5v7a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 5 11.5v-7Z\"/><path d=\"M3 10.5V3.75A1.75 1.75 0 0 1 4.75 2H10\"/></svg>';function resetButton(button){button.classList.remove('copied');button.setAttribute('aria-label','Copy code');button.title='Copy code';button.innerHTML=copyIcon;}function markCopied(button){if(!button)return;button.classList.add('copied');button.setAttribute('aria-label','Copied');button.title='Copied';button.textContent='Copied';clearTimeout(button.__mdairCopyTimeout);button.__mdairCopyTimeout=setTimeout(function(){resetButton(button);},1400);}function fallbackCopy(text,done){var textarea=document.createElement('textarea');textarea.value=text;textarea.setAttribute('readonly','');textarea.style.position='fixed';textarea.style.top='0';textarea.style.left='0';textarea.style.opacity='0';document.body.appendChild(textarea);textarea.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(textarea);done();}function copyText(text,button){if(text==null)return;var done=function(){markCopied(button);};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){fallbackCopy(text,done);});}else{fallbackCopy(text,done);}}function installCopyButtons(){document.querySelectorAll('pre > code').forEach(function(code){var pre=code.parentElement;if(!pre||pre.classList.contains('mermaid'))return;var wrapper=code.closest('.mdair-code-block');if(!wrapper){wrapper=document.createElement('div');wrapper.className='mdair-code-block';pre.parentNode.insertBefore(wrapper,pre);wrapper.appendChild(pre);}var button=wrapper.querySelector('.mdair-copy-button');if(!button){button=document.createElement('button');button.type='button';button.className='mdair-copy-button';wrapper.insertBefore(button,wrapper.firstChild);}if(!button.querySelector('.mdair-copy-icon')&&!button.classList.contains('copied'))resetButton(button);if(button.dataset.mdairCopyReady==='1')return;button.dataset.mdairCopyReady='1';button.addEventListener('click',function(){copyText(code.textContent,button);});});}document.addEventListener('DOMContentLoaded',installCopyButtons);if(document.readyState==='complete'||document.readyState==='interactive')installCopyButtons();})();</script>";
+}
+
 // Simple Markdown to HTML converter
 NSString *markdownToHTML(NSString *markdown) {
     NSMutableString *html = [markdown mutableCopy];
@@ -25,7 +33,7 @@ NSString *markdownToHTML(NSString *markdown) {
                 code = [code stringByReplacingOccurrencesOfString:@"&" withString:@"&amp;"];
                 code = [code stringByReplacingOccurrencesOfString:@"<" withString:@"&lt;"];
                 code = [code stringByReplacingOccurrencesOfString:@">" withString:@"&gt;"];
-                replacement = [NSString stringWithFormat:@"<pre><code>%@</code></pre>", code];
+                replacement = [NSString stringWithFormat:@"<div class=\"mdair-code-block\">%@<pre><code>%@</code></pre></div>", codeCopyButtonHTML(), code];
             }
             [html replaceCharactersInRange:[match range] withString:replacement];
         }
@@ -268,6 +276,21 @@ NSString *getCSS(void) {
     "h5, h6 { font-size: 1em; margin: 0.6em 0 0.3em; }"
     "p { margin: 0.6em 0; }"
     "pre { padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 13px; margin: 1em 0; }"
+    ".mdair-code-block { position: relative; }"
+    ".mdair-copy-button {"
+    "  position: absolute; top: 10px; right: 10px;"
+    "  display: inline-flex; align-items: center; justify-content: center; gap: 4px;"
+    "  min-width: 32px; height: 30px;"
+    "  opacity: 0; transform: translateY(-2px);"
+    "  transition: opacity 0.18s ease, transform 0.18s ease;"
+    "  border: none; border-radius: 8px; padding: 0 9px;"
+    "  font-size: 12px; background: rgba(0,0,0,0.55); color: #fff;"
+    "  cursor: pointer; white-space: nowrap;"
+    "}"
+    ".mdair-copy-button.copied, .mdair-code-block:hover .mdair-copy-button { opacity: 1; transform: translateY(0); }"
+    ".mdair-copy-button:hover { background: rgba(0,0,0,0.74); }"
+    ".mdair-copy-icon { width: 15px; height: 15px; }"
+    ".mdair-copy-icon path { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }"
     "code { font-family: 'SF Mono', Menlo, monospace; font-size: 0.9em; padding: 2px 6px; border-radius: 4px; }"
     "pre code { padding: 0; font-size: inherit; }"
     "blockquote { padding: 8px 16px; margin: 1em 0; border-left: 4px solid; border-radius: 2px; }"
@@ -281,17 +304,6 @@ NSString *getCSS(void) {
     "a { text-decoration: none; }"
     "a:hover { text-decoration: underline; }"
     "input[type=checkbox] { margin-right: 6px; }"
-    "#mdair-toast {"
-    "  position: fixed; top: 16px; right: 16px;"
-    "  padding: 6px 14px; border-radius: 6px;"
-    "  font-size: 13px; font-weight: 500;"
-    "  background: rgba(40,40,40,0.92); color: #fff;"
-    "  opacity: 0; pointer-events: none;"
-    "  transform: translateY(-8px);"
-    "  transition: opacity 0.18s ease, transform 0.18s ease;"
-    "  z-index: 99999;"
-    "}"
-    "#mdair-toast.show { opacity: 1; transform: translateY(0); }"
 
     // Light theme
     "@media (prefers-color-scheme: light) {"
@@ -348,7 +360,6 @@ NSString *getCSS(void) {
     "  hr { background: #d1d9e0 !important; }"
     "  a { color: #0969da !important; text-decoration: none; }"
     "  img { max-width: 100% !important; height: auto; }"
-    "  #mdair-toast { display: none !important; }"
     "}";
 }
 
@@ -391,8 +402,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             "<body>%@"
             "<script src='https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js'></script>"
             "<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>"
+            "%@"
             "</body>"
-            "</html>", css, body];
+            "</html>", css, body, getCopyScript()];
 
         // Return HTML to QuickLook
         NSDictionary *props = @{
